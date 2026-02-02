@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getGitHubAuth } from "@/lib/github";
 
 export async function GET(req: NextRequest) {
-  const token = process.env.GITHUB_TOKEN;
-  if (!token) return NextResponse.json({ error: "No GITHUB_TOKEN" }, { status: 500 });
+  const gh = await getGitHubAuth();
+  if (!gh) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 
   const repo = req.nextUrl.searchParams.get("repo");
   const path = req.nextUrl.searchParams.get("path") || "";
@@ -10,11 +11,11 @@ export async function GET(req: NextRequest) {
   if (!repo) return NextResponse.json({ error: "repo param required" }, { status: 400 });
 
   const url = path
-    ? `https://api.github.com/repos/followmarkobot/${repo}/contents/${path}`
-    : `https://api.github.com/repos/followmarkobot/${repo}/contents`;
+    ? `https://api.github.com/repos/${gh.username}/${repo}/contents/${path}`
+    : `https://api.github.com/repos/${gh.username}/${repo}/contents`;
 
   const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" },
+    headers: { Authorization: `Bearer ${gh.token}`, Accept: "application/vnd.github+json" },
     next: { revalidate: 30 },
   });
 
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     .map((item: any) => ({
       name: item.name,
       path: item.path,
-      type: item.type, // "file" or "dir"
+      type: item.type,
       size: item.size,
     }))
     .sort((a: any, b: any) => {

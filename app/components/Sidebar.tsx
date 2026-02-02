@@ -9,6 +9,12 @@ interface Repo {
   updated_at: string;
 }
 
+interface UserInfo {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 interface SidebarProps {
   repos: Repo[];
   selectedRepos: string[];
@@ -16,6 +22,8 @@ interface SidebarProps {
   loading: boolean;
   collapsed: boolean;
   onCollapse: () => void;
+  user: UserInfo | null;
+  onSignOut: () => void;
 }
 
 const LANG_COLORS: Record<string, string> = {
@@ -29,7 +37,7 @@ const LANG_COLORS: Record<string, string> = {
   Shell: "#89e051",
 };
 
-export default function Sidebar({ repos, selectedRepos, onToggle, loading, collapsed, onCollapse }: SidebarProps) {
+export default function Sidebar({ repos, selectedRepos, onToggle, loading, collapsed, onCollapse, user, onSignOut }: SidebarProps) {
   const [search, setSearch] = useState("");
 
   const filtered = repos.filter((r) =>
@@ -44,6 +52,13 @@ export default function Sidebar({ repos, selectedRepos, onToggle, loading, colla
         onClick={onCollapse}
       >
         <span className="text-[var(--text-secondary)] text-sm">▶</span>
+        {user?.image && (
+          <img
+            src={user.image}
+            alt=""
+            className="w-6 h-6 rounded-full mt-2"
+          />
+        )}
         <span
           className="text-xs mt-2 font-mono"
           style={{ writingMode: "vertical-rl", color: "var(--text-secondary)" }}
@@ -72,6 +87,30 @@ export default function Sidebar({ repos, selectedRepos, onToggle, loading, colla
           ◀
         </button>
       </div>
+
+      {/* User info */}
+      {user && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b" style={{ borderColor: "var(--border)" }}>
+          {user.image && (
+            <img
+              src={user.image}
+              alt=""
+              className="w-6 h-6 rounded-full"
+            />
+          )}
+          <span className="text-xs font-medium flex-1 truncate" style={{ color: "var(--text-primary)" }}>
+            {user.name || user.email || "User"}
+          </span>
+          <button
+            onClick={onSignOut}
+            className="text-[10px] px-1.5 py-0.5 rounded hover:bg-[var(--bg-tertiary)] cursor-pointer"
+            style={{ color: "var(--text-secondary)" }}
+            title="Sign out"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-3 py-2">
