@@ -8,7 +8,7 @@ export async function GET() {
   let page = 1;
   while (true) {
     const res = await fetch(
-      `https://api.github.com/orgs/followmarkobot/repos?per_page=100&page=${page}&sort=updated`,
+      `https://api.github.com/users/followmarkobot/repos?per_page=100&page=${page}&sort=updated`,
       { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }, next: { revalidate: 60 } }
     );
     if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: res.status });

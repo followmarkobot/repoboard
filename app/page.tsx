@@ -22,7 +22,7 @@ export default function Home() {
     fetch("/api/repos")
       .then((r) => r.json())
       .then((data) => {
-        setRepos(data);
+        setRepos(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
