@@ -3,6 +3,7 @@
 import { useState } from "react";
 import FileTree from "./FileTree";
 import CodePreview from "./CodePreview";
+import ChatPanel from "./ChatPanel";
 
 interface RepoColumnProps {
   repoName: string;
@@ -12,6 +13,7 @@ interface RepoColumnProps {
 export default function RepoColumn({ repoName, onClose }: RepoColumnProps) {
   const [selectedFile, setSelectedFile] = useState<{ path: string; content: string } | null>(null);
   const [showCode, setShowCode] = useState(true);
+  const [showChat, setShowChat] = useState(false);
 
   const handleFileSelect = async (path: string) => {
     try {
@@ -42,22 +44,35 @@ export default function RepoColumn({ repoName, onClose }: RepoColumnProps) {
             {repoName}
           </span>
         </div>
-        <button
-          onClick={onClose}
-          className="text-xs px-1.5 py-0.5 rounded hover:bg-[var(--bg-tertiary)] shrink-0"
-          style={{ color: "var(--text-secondary)" }}
-          title="Remove column"
-        >
-          ✕
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={() => setShowChat(!showChat)}
+            className="text-xs px-1.5 py-0.5 rounded hover:bg-[var(--bg-tertiary)] cursor-pointer border-0"
+            style={{
+              color: showChat ? "var(--accent)" : "var(--text-secondary)",
+              background: showChat ? "var(--bg-tertiary)" : "transparent",
+            }}
+            title={showChat ? "Hide chat" : "Show chat assistant"}
+          >
+            💬
+          </button>
+          <button
+            onClick={onClose}
+            className="text-xs px-1.5 py-0.5 rounded hover:bg-[var(--bg-tertiary)] shrink-0 cursor-pointer border-0"
+            style={{ color: "var(--text-secondary)", background: "transparent" }}
+            title="Remove column"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {/* File tree */}
       <div
         className="overflow-y-auto"
         style={{
-          flex: showCode && selectedFile ? "0 0 45%" : "1 1 auto",
-          minHeight: "120px",
+          flex: showCode && selectedFile ? "0 0 30%" : showChat ? "0 0 50%" : "1 1 auto",
+          minHeight: "80px",
         }}
       >
         <FileTree repoName={repoName} onFileSelect={handleFileSelect} selectedPath={selectedFile?.path} />
@@ -78,13 +93,16 @@ export default function RepoColumn({ repoName, onClose }: RepoColumnProps) {
             </span>
             <button
               onClick={() => setShowCode(false)}
-              className="text-[10px] px-1 rounded hover:bg-[var(--bg-tertiary)]"
-              style={{ color: "var(--text-secondary)" }}
+              className="text-[10px] px-1 rounded hover:bg-[var(--bg-tertiary)] cursor-pointer border-0"
+              style={{ color: "var(--text-secondary)", background: "transparent" }}
             >
               ▼
             </button>
           </div>
-          <div className="flex-1 overflow-auto min-h-0">
+          <div
+            className="overflow-auto min-h-0"
+            style={{ flex: showChat ? "0 0 25%" : "1 1 auto" }}
+          >
             <CodePreview content={selectedFile.content} path={selectedFile.path} />
           </div>
         </>
@@ -102,6 +120,9 @@ export default function RepoColumn({ repoName, onClose }: RepoColumnProps) {
           </span>
         </div>
       )}
+
+      {/* Chat panel */}
+      {showChat && <ChatPanel repoName={repoName} onFileClick={handleFileSelect} />}
     </div>
   );
 }
