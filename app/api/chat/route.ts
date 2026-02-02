@@ -117,7 +117,7 @@ ${Object.keys(keyFileContents).length > 0 ? "KEY FILE CONTENTS:\n" + Object.entr
   ];
 
   const stream = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4.1",
     messages,
     stream: true,
     max_tokens: 1500,
