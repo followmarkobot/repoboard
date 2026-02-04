@@ -2,7 +2,9 @@ import { NextRequest } from "next/server";
 import { getGitHubAuth } from "@/lib/github";
 import OpenAI from "openai";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAI() {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -116,7 +118,7 @@ ${Object.keys(keyFileContents).length > 0 ? "KEY FILE CONTENTS:\n" + Object.entr
     { role: "user" as const, content: message },
   ];
 
-  const stream = await openai.chat.completions.create({
+  const stream = await getOpenAI().chat.completions.create({
     model: "gpt-4.1",
     messages,
     stream: true,
